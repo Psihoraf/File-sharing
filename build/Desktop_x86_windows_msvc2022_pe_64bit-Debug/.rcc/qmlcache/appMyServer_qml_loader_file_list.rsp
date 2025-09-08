@@ -1,0 +1,5 @@
+--resource
+D:/QtProject/MyServer/build/Desktop_x86_windows_msvc2022_pe_64bit-Debug/.qt/rcc/qmake_MyServer.qrc
+--resource
+D:/QtProject/MyServer/build/Desktop_x86_windows_msvc2022_pe_64bit-Debug/.qt/rcc/appMyServer_raw_qml_0.qrc
+/qt/qml/MyServer/Main.qml
