@@ -1,6 +1,6 @@
 C:/Users/HONOR/Documents/File-sharing/build/Desktop_x86_windows_msvc2022_pe_32bit-Debug/appMyServer_autogen/EWIEGA46WW/moc_tcpserverhandler.cpp: C:/Users/HONOR/Documents/File-sharing/tcpserverhandler.h \
-  D:/Qt/6.7.2/msvc2019_64/include/QtCore/QFile \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/QObject \
+  D:/Qt/6.7.2/msvc2019_64/include/QtCore/QString \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/q20functional.h \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/q20memory.h \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/q20type_traits.h \
@@ -34,8 +34,6 @@ C:/Users/HONOR/Documents/File-sharing/build/Desktop_x86_windows_msvc2022_pe_32bi
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/qdatastream.h \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/qdebug.h \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/qexceptionhandling.h \
-  D:/Qt/6.7.2/msvc2019_64/include/QtCore/qfile.h \
-  D:/Qt/6.7.2/msvc2019_64/include/QtCore/qfiledevice.h \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/qflags.h \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/qfloat16.h \
   D:/Qt/6.7.2/msvc2019_64/include/QtCore/qforeach.h \

@@ -4,45 +4,44 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QFile>
+#include <QString>
 
 class TcpServerHandler : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString serverStatus READ serverStatus NOTIFY serverStatusChanged)
-    Q_PROPERTY(QString serverIpPort READ serverIpPort NOTIFY serverIpPortChanged)
+    Q_PROPERTY(QString serverAddress READ serverAddress NOTIFY serverAddressChanged)
+    Q_PROPERTY(bool isRunning READ isRunning NOTIFY isRunningChanged)
     Q_PROPERTY(QString receivedFileName READ receivedFileName NOTIFY receivedFileNameChanged)
 
 public:
     explicit TcpServerHandler(QObject *parent = nullptr);
 
-    QString serverStatus();
-    QString serverIpPort();
-    QString receivedFileName();
+    QString serverAddress() const;
+    bool isRunning() const;
+    QString receivedFileName() const;
 
     Q_INVOKABLE void startServer();
     Q_INVOKABLE void stopServer();
 
-
 signals:
-    void serverStatusChanged();
-    void serverIpPortChanged();
+    void serverAddressChanged();
+    void isRunningChanged();
     void receivedFileNameChanged();
-    void fileSaved(bool success, const QString &path);
+    void fileReceived(const QString &fileName);        // ДОБАВЛЯЕМ ЭТОТ СИГНАЛ
+    void errorOccurred(const QString &errorMessage);   // ДОБАВЛЯЕМ ЭТОТ СИГНАЛ
 
 private slots:
     void onNewConnection();
     void onReadyRead();
-    void onClientDisconnected();
+    void onSocketError(QAbstractSocket::SocketError error);  // ДОБАВЛЯЕМ ЭТОТ СЛОТ
 
 private:
     QTcpServer *m_tcpServer;
     QTcpSocket *m_clientSocket;
-    QString m_serverStatus;
-    QString m_serverIpPort;
+    QString m_serverAddress;
+    bool m_isRunning;
     QString m_receivedFileName;
-    QFile m_file;
 };
 
 #endif // TCPSERVERHANDLER_H

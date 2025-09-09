@@ -2,8 +2,8 @@
 C:/Users/HONOR/Documents/File-sharing/tcpserverhandler.h
  mmc:Q_OBJECT
  mdp:C:/Users/HONOR/Documents/File-sharing/tcpserverhandler.h
- mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/QFile
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/QObject
+ mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/QString
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/q20functional.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/q20memory.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/q20type_traits.h
@@ -37,8 +37,6 @@ C:/Users/HONOR/Documents/File-sharing/tcpserverhandler.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qdatastream.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qdebug.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qexceptionhandling.h
- mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qfile.h
- mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qfiledevice.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qflags.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qfloat16.h
  mdp:D:/Qt/6.7.2/msvc2019_64/include/QtCore/qforeach.h

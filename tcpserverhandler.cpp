@@ -1,110 +1,175 @@
 #include "tcpserverhandler.h"
+#include <QDebug>
 #include <QNetworkInterface>
+#include <QDataStream>
 #include <QDateTime>
 #include <QDir>
+
 TcpServerHandler::TcpServerHandler(QObject *parent)
-    : QObject{parent}, m_tcpServer(nullptr), m_clientSocket(nullptr)
+    : QObject(parent)
+    , m_tcpServer(new QTcpServer(this))
+    , m_clientSocket(nullptr)
+    , m_isRunning(false)
 {
-    m_serverStatus = "Server stoped";
+    connect(m_tcpServer, &QTcpServer::newConnection, this, &TcpServerHandler::onNewConnection);
 }
 
-QString TcpServerHandler::serverStatus(){
-    return m_serverStatus;
-}
+QString TcpServerHandler::serverAddress() const { return m_serverAddress; }
+bool TcpServerHandler::isRunning() const { return m_isRunning; }
+QString TcpServerHandler::receivedFileName() const { return m_receivedFileName; }
 
-QString TcpServerHandler::serverIpPort(){
-    return m_serverIpPort;
-}
-
-QString TcpServerHandler::receivedFileName(){
-    return m_receivedFileName;
-}
-
-void TcpServerHandler::startServer(){
-    if(m_tcpServer){
-        stopServer();
+void TcpServerHandler::startServer()
+{
+    if (m_isRunning) {
+        emit errorOccurred("Сервер уже запущен");  // ТЕПЕРЬ ЭТОТ СИГНАЛ СУЩЕСТВУЕТ
+        return;
     }
 
-    m_tcpServer = new QTcpServer(this);
-    connect (m_tcpServer, &QTcpServer::newConnection, this, &TcpServerHandler::onNewConnection);
+    if (!m_tcpServer->listen(QHostAddress::Any, 12345)) {
+        emit errorOccurred("Не удалось запустить сервер: " + m_tcpServer->errorString());
+        return;
+    }
 
-    if (m_tcpServer->listen(QHostAddress::Any, 0)){
-        QString ipAddress;
-        QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-        for (const QHostAddress &address:ipAddressesList) {
-            if(address != QHostAddress::LocalHost&&address.toIPv4Address()){
-                ipAddress = address.toString();
-                break;
-            }
+    m_isRunning = true;
 
+    // Получаем IP-адрес сервера
+    QString ipAddress;
+    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+
+    for (const QHostAddress &address : ipAddressesList) {
+        if (address != QHostAddress::LocalHost && address.protocol() == QAbstractSocket::IPv4Protocol) {
+            ipAddress = address.toString();
+            break;
         }
-        if (ipAddress.isEmpty()){
-            ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-        }
-
-        m_serverIpPort = ipAddress + ":" +QString::number(m_tcpServer->serverPort());
-        m_serverStatus = "Server started. Waiting to connecting";
-
-        qDebug() << "Server started on" << m_serverIpPort;
-        emit serverIpPortChanged();
-        emit serverStatusChanged();
-
     }
-    else{
-        m_serverStatus = "Error: " + m_tcpServer->errorString();
+
+    if (ipAddress.isEmpty()) {
+        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
     }
-    qDebug() << m_serverStatus;
-    emit serverStatusChanged();
+
+    m_serverAddress = ipAddress + ":" + QString::number(m_tcpServer->serverPort());
+
+    qDebug() << "Сервер запущен на" << m_serverAddress;
+    emit isRunningChanged();
+    emit serverAddressChanged();
 }
 
-void TcpServerHandler::stopServer(){
-    if (m_tcpServer){
+void TcpServerHandler::stopServer()
+{
+    if (m_isRunning) {
         m_tcpServer->close();
-        m_tcpServer->deleteLater();
-        m_tcpServer = nullptr;
-    }
-    if(m_clientSocket){
-        m_clientSocket->close();
-        m_clientSocket->deleteLater();
-        m_clientSocket=nullptr;
-    }
+        if (m_clientSocket) {
+            m_clientSocket->close();
+            m_clientSocket->deleteLater();
+            m_clientSocket = nullptr;
+        }
 
-    m_serverStatus = "Server stopped";
-    m_serverIpPort = "";
-    emit serverStatusChanged();
-    emit serverIpPortChanged();
+        m_isRunning = false;
+        m_serverAddress.clear();
+
+        qDebug() << "Сервер остановлен";
+        emit isRunningChanged();
+        emit serverAddressChanged();
+    }
 }
 
-void TcpServerHandler::onNewConnection(){
+void TcpServerHandler::onNewConnection()
+{
     m_clientSocket = m_tcpServer->nextPendingConnection();
-    connect(m_clientSocket, &QTcpSocket::readyRead, this, &TcpServerHandler::onReadyRead);
-    connect(m_clientSocket, &QTcpSocket::disconnected, this, &TcpServerHandler::onClientDisconnected);
+    if (m_clientSocket) {
+        connect(m_clientSocket, &QTcpSocket::readyRead, this, &TcpServerHandler::onReadyRead);
+        connect(m_clientSocket, &QTcpSocket::disconnected, this, [this]() {
+            m_clientSocket->deleteLater();
+            m_clientSocket = nullptr;
+            qDebug() << "Клиент отключился";
+        });
+        connect(m_clientSocket, &QTcpSocket::errorOccurred, this, &TcpServerHandler::onSocketError);
 
-    m_serverStatus = "Client was connected";
-    emit serverStatusChanged();
-
-    m_receivedFileName = "received_file_" +QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")+".dat";
-    m_file.setFileName(m_receivedFileName);
-
-    if (!m_file.open(QIODevice::WriteOnly)){
-        qDebug() << "Couldn't open file to writing:" << m_receivedFileName;
-        m_clientSocket->disconnectFromHost();
+        qDebug() << "Новое подключение от" << m_clientSocket->peerAddress().toString();
     }
-    emit receivedFileNameChanged();
 }
 
-void TcpServerHandler::onReadyRead(){
-    if(!m_clientSocket||!m_file.isOpen()) return;
-    QByteArray data = m_clientSocket->readAll();
-    m_file.write(data);
+void TcpServerHandler::onSocketError(QAbstractSocket::SocketError error)
+{
+    Q_UNUSED(error)
+    if (m_clientSocket) {
+        emit errorOccurred("Ошибка сокета: " + m_clientSocket->errorString());
+    }
 }
 
-void TcpServerHandler::onClientDisconnected(){
-    m_file.close();
-    m_clientSocket->deleteLater();
-    m_clientSocket = nullptr;
+void TcpServerHandler::onReadyRead()
+{
+    if (!m_clientSocket) {
+        return;
+    }
 
-    m_serverStatus = "Client disconnected. File saved:" + m_receivedFileName;
-    emit serverStatusChanged();
-    emit fileSaved(true, QDir::toNativeSeparators(m_file.fileName()));
+    static qint64 expectedFileSize = 0;
+    static QString expectedFileName;
+    static QFile *outputFile = nullptr;
+    static qint64 bytesReceived = 0;
+
+    QDataStream in(m_clientSocket);
+    in.setVersion(QDataStream::Qt_6_0);
+
+    // Если мы еще не начали принимать файл
+    if (expectedFileSize == 0) {
+        // Проверяем, достаточно ли данных для заголовка
+        if (m_clientSocket->bytesAvailable() < sizeof(qint64) * 2) {
+            return;
+        }
+
+        // Читаем заголовок: размер файла + имя файла
+        in >> expectedFileSize >> expectedFileName;
+
+        // Создаем папку для полученных файлов
+        QDir dir;
+        QString receivedDir = "received_files";
+        if (!dir.exists(receivedDir)) {
+            if (!dir.mkdir(receivedDir)) {
+                emit errorOccurred("Не удалось создать папку для файлов");
+                return;
+            }
+        }
+
+        // Создаем файл для записи
+        QString filePath = "C:/Users/HONOR/Downloads/" + expectedFileName;
+        outputFile = new QFile(filePath);
+        if (!outputFile->open(QIODevice::WriteOnly)) {
+            emit errorOccurred("Не удалось создать файл: " + filePath);
+            delete outputFile;
+            outputFile = nullptr;
+            expectedFileSize = 0;
+            return;
+        }
+
+        m_receivedFileName = expectedFileName;
+        emit receivedFileNameChanged();
+
+        qDebug() << "Начинаем прием файла:" << expectedFileName << "размером:" << expectedFileSize << "байт";
+        bytesReceived = 0;
+    }
+
+    // Принимаем данные файла
+    if (outputFile && outputFile->isOpen()) {
+        QByteArray data = m_clientSocket->readAll();
+        qint64 bytesWritten = outputFile->write(data);
+        bytesReceived += bytesWritten;
+
+        qDebug() << "Принято:" << bytesReceived << "/" << expectedFileSize << "байт";
+
+        // Если файл полностью принят
+        if (bytesReceived >= expectedFileSize) {
+            outputFile->close();
+            delete outputFile;
+            outputFile = nullptr;
+
+            qDebug() << "Файл успешно принят:" << expectedFileName;
+            emit fileReceived(expectedFileName);  // ТЕПЕРЬ ЭТОТ СИГНАЛ СУЩЕСТВУЕТ
+
+            // Сбрасываем состояние для следующего файла
+            expectedFileSize = 0;
+            bytesReceived = 0;
+            expectedFileName.clear();
+        }
+    }
 }

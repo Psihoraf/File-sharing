@@ -22,9 +22,9 @@
                         "designable": true,
                         "final": false,
                         "index": 0,
-                        "name": "serverStatus",
-                        "notify": "serverStatusChanged",
-                        "read": "serverStatus",
+                        "name": "serverAddress",
+                        "notify": "serverAddressChanged",
+                        "read": "serverAddress",
                         "required": false,
                         "scriptable": true,
                         "stored": true,
@@ -36,13 +36,13 @@
                         "designable": true,
                         "final": false,
                         "index": 1,
-                        "name": "serverIpPort",
-                        "notify": "serverIpPortChanged",
-                        "read": "serverIpPort",
+                        "name": "isRunning",
+                        "notify": "isRunningChanged",
+                        "read": "isRunning",
                         "required": false,
                         "scriptable": true,
                         "stored": true,
-                        "type": "QString",
+                        "type": "bool",
                         "user": false
                     },
                     {
@@ -64,12 +64,12 @@
                 "signals": [
                     {
                         "access": "public",
-                        "name": "serverStatusChanged",
+                        "name": "serverAddressChanged",
                         "returnType": "void"
                     },
                     {
                         "access": "public",
-                        "name": "serverIpPortChanged",
+                        "name": "isRunningChanged",
                         "returnType": "void"
                     },
                     {
@@ -81,15 +81,22 @@
                         "access": "public",
                         "arguments": [
                             {
-                                "name": "success",
-                                "type": "bool"
-                            },
-                            {
-                                "name": "path",
+                                "name": "fileName",
                                 "type": "QString"
                             }
                         ],
-                        "name": "fileSaved",
+                        "name": "fileReceived",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "errorMessage",
+                                "type": "QString"
+                            }
+                        ],
+                        "name": "errorOccurred",
                         "returnType": "void"
                     }
                 ],
@@ -106,7 +113,13 @@
                     },
                     {
                         "access": "private",
-                        "name": "onClientDisconnected",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "QAbstractSocket::SocketError"
+                            }
+                        ],
+                        "name": "onSocketError",
                         "returnType": "void"
                     }
                 ],

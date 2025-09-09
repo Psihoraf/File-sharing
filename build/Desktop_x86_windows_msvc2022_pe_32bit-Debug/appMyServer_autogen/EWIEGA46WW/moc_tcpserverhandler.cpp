@@ -36,20 +36,23 @@ namespace {
 struct qt_meta_stringdata_CLASSTcpServerHandlerENDCLASS_t {};
 constexpr auto qt_meta_stringdata_CLASSTcpServerHandlerENDCLASS = QtMocHelpers::stringData(
     "TcpServerHandler",
-    "serverStatusChanged",
+    "serverAddressChanged",
     "",
-    "serverIpPortChanged",
+    "isRunningChanged",
     "receivedFileNameChanged",
-    "fileSaved",
-    "success",
-    "path",
+    "fileReceived",
+    "fileName",
+    "errorOccurred",
+    "errorMessage",
     "onNewConnection",
     "onReadyRead",
-    "onClientDisconnected",
+    "onSocketError",
+    "QAbstractSocket::SocketError",
+    "error",
     "startServer",
     "stopServer",
-    "serverStatus",
-    "serverIpPort",
+    "serverAddress",
+    "isRunning",
     "receivedFileName"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
@@ -63,47 +66,49 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSTcpServerHandlerENDCLASS[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
-       3,   81, // properties
+      10,   14, // methods
+       3,   90, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       4,       // signalCount
+       5,       // signalCount
 
  // signals: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   68,    2, 0x06,    4 /* Public */,
-       3,    0,   69,    2, 0x06,    5 /* Public */,
-       4,    0,   70,    2, 0x06,    6 /* Public */,
-       5,    2,   71,    2, 0x06,    7 /* Public */,
+       1,    0,   74,    2, 0x06,    4 /* Public */,
+       3,    0,   75,    2, 0x06,    5 /* Public */,
+       4,    0,   76,    2, 0x06,    6 /* Public */,
+       5,    1,   77,    2, 0x06,    7 /* Public */,
+       7,    1,   80,    2, 0x06,    9 /* Public */,
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       8,    0,   76,    2, 0x08,   10 /* Private */,
-       9,    0,   77,    2, 0x08,   11 /* Private */,
-      10,    0,   78,    2, 0x08,   12 /* Private */,
+       9,    0,   83,    2, 0x08,   11 /* Private */,
+      10,    0,   84,    2, 0x08,   12 /* Private */,
+      11,    1,   85,    2, 0x08,   13 /* Private */,
 
  // methods: name, argc, parameters, tag, flags, initial metatype offsets
-      11,    0,   79,    2, 0x02,   13 /* Public */,
-      12,    0,   80,    2, 0x02,   14 /* Public */,
+      14,    0,   88,    2, 0x02,   15 /* Public */,
+      15,    0,   89,    2, 0x02,   16 /* Public */,
 
  // signals: parameters
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Bool, QMetaType::QString,    6,    7,
+    QMetaType::Void, QMetaType::QString,    6,
+    QMetaType::Void, QMetaType::QString,    8,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 12,   13,
 
  // methods: parameters
     QMetaType::Void,
     QMetaType::Void,
 
  // properties: name, type, flags
-      13, QMetaType::QString, 0x00015001, uint(0), 0,
-      14, QMetaType::QString, 0x00015001, uint(1), 0,
-      15, QMetaType::QString, 0x00015001, uint(2), 0,
+      16, QMetaType::QString, 0x00015001, uint(0), 0,
+      17, QMetaType::Bool, 0x00015001, uint(1), 0,
+      18, QMetaType::QString, 0x00015001, uint(2), 0,
 
        0        // eod
 };
@@ -115,30 +120,33 @@ Q_CONSTINIT const QMetaObject TcpServerHandler::staticMetaObject = { {
     qt_static_metacall,
     nullptr,
     qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSTcpServerHandlerENDCLASS_t,
-        // property 'serverStatus'
+        // property 'serverAddress'
         QtPrivate::TypeAndForceComplete<QString, std::true_type>,
-        // property 'serverIpPort'
-        QtPrivate::TypeAndForceComplete<QString, std::true_type>,
+        // property 'isRunning'
+        QtPrivate::TypeAndForceComplete<bool, std::true_type>,
         // property 'receivedFileName'
         QtPrivate::TypeAndForceComplete<QString, std::true_type>,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<TcpServerHandler, std::true_type>,
-        // method 'serverStatusChanged'
+        // method 'serverAddressChanged'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'serverIpPortChanged'
+        // method 'isRunningChanged'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'receivedFileNameChanged'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'fileSaved'
+        // method 'fileReceived'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
+        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
+        // method 'errorOccurred'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
         // method 'onNewConnection'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'onReadyRead'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'onClientDisconnected'
+        // method 'onSocketError'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<QAbstractSocket::SocketError, std::false_type>,
         // method 'startServer'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'stopServer'
@@ -153,29 +161,41 @@ void TcpServerHandler::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         auto *_t = static_cast<TcpServerHandler *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->serverStatusChanged(); break;
-        case 1: _t->serverIpPortChanged(); break;
+        case 0: _t->serverAddressChanged(); break;
+        case 1: _t->isRunningChanged(); break;
         case 2: _t->receivedFileNameChanged(); break;
-        case 3: _t->fileSaved((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 4: _t->onNewConnection(); break;
-        case 5: _t->onReadyRead(); break;
-        case 6: _t->onClientDisconnected(); break;
-        case 7: _t->startServer(); break;
-        case 8: _t->stopServer(); break;
+        case 3: _t->fileReceived((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 4: _t->errorOccurred((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 5: _t->onNewConnection(); break;
+        case 6: _t->onReadyRead(); break;
+        case 7: _t->onSocketError((*reinterpret_cast< std::add_pointer_t<QAbstractSocket::SocketError>>(_a[1]))); break;
+        case 8: _t->startServer(); break;
+        case 9: _t->stopServer(); break;
         default: ;
+        }
+    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        switch (_id) {
+        default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
+        case 7:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
+            case 0:
+                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< QAbstractSocket::SocketError >(); break;
+            }
+            break;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
             using _t = void (TcpServerHandler::*)();
-            if (_t _q_method = &TcpServerHandler::serverStatusChanged; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            if (_t _q_method = &TcpServerHandler::serverAddressChanged; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
                 *result = 0;
                 return;
             }
         }
         {
             using _t = void (TcpServerHandler::*)();
-            if (_t _q_method = &TcpServerHandler::serverIpPortChanged; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            if (_t _q_method = &TcpServerHandler::isRunningChanged; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
                 *result = 1;
                 return;
             }
@@ -188,9 +208,16 @@ void TcpServerHandler::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
             }
         }
         {
-            using _t = void (TcpServerHandler::*)(bool , const QString & );
-            if (_t _q_method = &TcpServerHandler::fileSaved; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            using _t = void (TcpServerHandler::*)(const QString & );
+            if (_t _q_method = &TcpServerHandler::fileReceived; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
                 *result = 3;
+                return;
+            }
+        }
+        {
+            using _t = void (TcpServerHandler::*)(const QString & );
+            if (_t _q_method = &TcpServerHandler::errorOccurred; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+                *result = 4;
                 return;
             }
         }
@@ -199,8 +226,8 @@ void TcpServerHandler::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         (void)_t;
         void *_v = _a[0];
         switch (_id) {
-        case 0: *reinterpret_cast< QString*>(_v) = _t->serverStatus(); break;
-        case 1: *reinterpret_cast< QString*>(_v) = _t->serverIpPort(); break;
+        case 0: *reinterpret_cast< QString*>(_v) = _t->serverAddress(); break;
+        case 1: *reinterpret_cast< bool*>(_v) = _t->isRunning(); break;
         case 2: *reinterpret_cast< QString*>(_v) = _t->receivedFileName(); break;
         default: break;
         }
@@ -229,13 +256,13 @@ int TcpServerHandler::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 10;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 9)
-            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 9;
+        if (_id < 10)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 10;
     }else if (_c == QMetaObject::ReadProperty || _c == QMetaObject::WriteProperty
             || _c == QMetaObject::ResetProperty || _c == QMetaObject::BindableProperty
             || _c == QMetaObject::RegisterPropertyMetaType) {
@@ -246,13 +273,13 @@ int TcpServerHandler::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void TcpServerHandler::serverStatusChanged()
+void TcpServerHandler::serverAddressChanged()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
 }
 
 // SIGNAL 1
-void TcpServerHandler::serverIpPortChanged()
+void TcpServerHandler::isRunningChanged()
 {
     QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
 }
@@ -264,9 +291,16 @@ void TcpServerHandler::receivedFileNameChanged()
 }
 
 // SIGNAL 3
-void TcpServerHandler::fileSaved(bool _t1, const QString & _t2)
+void TcpServerHandler::fileReceived(const QString & _t1)
 {
-    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))) };
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 3, _a);
+}
+
+// SIGNAL 4
+void TcpServerHandler::errorOccurred(const QString & _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    QMetaObject::activate(this, &staticMetaObject, 4, _a);
 }
 QT_WARNING_POP

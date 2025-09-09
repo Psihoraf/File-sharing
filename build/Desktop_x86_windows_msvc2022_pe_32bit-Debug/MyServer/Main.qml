@@ -23,11 +23,21 @@ ApplicationWindow {
     // C++ обработчик сервера
     TcpServerHandler {
         id: serverHandler
-        Component.onCompleted: {
-            console.log("TcpServerHandler created successfully!");
+
+        onFileReceived: function(fileName) {  // Явно указываем параметр
+            console.log("Файл получен:", fileName);
+            receivedFilesModel.append({"fileName": fileName, "status": "✓ Получен", "time": new Date().toLocaleTimeString()});
+            statusLabel.text = "Файл получен: " + fileName;
+            statusLabel.color = "blue";
         }
 
+        onErrorOccurred: function(errorMessage) {  // Явно указываем параметр
+            console.log("Ошибка:", errorMessage);
+            statusLabel.text = "Ошибка: " + errorMessage;
+            statusLabel.color = "red";
+        }
 
+        Component.onCompleted: console.log("Сервер инициализирован")
     }
 
     // Модель для списка полученных файлов
@@ -260,48 +270,48 @@ ApplicationWindow {
 
     // Диалог выбора файла - ИСПРАВЛЕННАЯ ВЕРСИЯ
     FileDialog {
-        id: fileDialog
-        title: "Выберите файл для отправки"
+            id: fileDialog
+            title: "Выберите файл для отправки"
+            currentFolder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
 
+            onAccepted: {
+                // Получаем путь к файлу
+                var filePath = selectedFile.toString();
 
-        onAccepted: {
-            // Безопасное получение пути к файлу
-            var filePath = "";
-            if (fileDialog.fileUrl) {
-                filePath = fileDialog.fileUrl.toString();
-                // Убираем префикс "file:///" для Windows
+                // Для Windows: убираем префикс "file:///"
                 if (filePath.startsWith("file:///")) {
-                    filePath = filePath.substring(8); // Для Windows
+                    filePath = filePath.substring(8);
+                }
+
+                statusLabel.text = "Выбран файл: " + filePath;
+                statusLabel.color = "purple";
+                resetStatusTimer.start();
+
+                console.log("Selected file:", filePath);
+
+                // Здесь будет вызов метода отправки файла
+                // serverHandler.sendFile(filePath);
+            }
+
+            onRejected: {
+                statusLabel.text = "Выбор файла отменен";
+                statusLabel.color = "gray";
+                resetStatusTimer.start();
+            }
+        }
+
+        // Таймер для сброса статусного сообщения
+        Timer {
+            id: resetStatusTimer
+            interval: 3000
+            onTriggered: {
+                if (serverHandler.isRunning) {
+                    statusLabel.text = "Сервер запущен: " + serverHandler.serverAddress;
+                    statusLabel.color = "green";
+                } else {
+                    statusLabel.text = "Сервер остановлен";
+                    statusLabel.color = "gray";
                 }
             }
-
-            statusLabel.text = "Выбран файл: " + (filePath || "неизвестный файл");
-            statusLabel.color = "purple";
-            resetStatusTimer.start();
-
-            // Здесь будет вызов метода отправки файла
-            console.log("Selected file:", filePath);
-        }
-
-        onRejected: {
-            statusLabel.text = "Выбор файла отменен";
-            statusLabel.color = "gray";
-            resetStatusTimer.start();
         }
     }
-
-    // Таймер для сброса статусного сообщения
-    Timer {
-        id: resetStatusTimer
-        interval: 3000
-        onTriggered: {
-            if (serverHandler.isRunning) {
-                statusLabel.text = "Сервер запущен: " + serverHandler.serverAddress;
-                statusLabel.color = "green";
-            } else {
-                statusLabel.text = "Сервер остановлен";
-                statusLabel.color = "gray";
-            }
-        }
-    }
-}
