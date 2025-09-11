@@ -16,8 +16,12 @@ qt_add_qml_module(appMyServer
     URI MyServer
     VERSION 1.0
     QML_FILES
-        Main.qml
+    Server.qml
         SOURCES tcpserverhandler.h tcpserverhandler.cpp
+        SOURCES tcpclienthandler.h tcpclienthandler.cpp
+        QML_FILES Client.qml
+        QML_FILES Main.qml
+        RESOURCES Resources.qrc
 
 )
 
