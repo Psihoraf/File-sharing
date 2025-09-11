@@ -1,0 +1,12 @@
+--bare
+-I
+/Users/maaoki/zalupa/File-sharing/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug
+-I
+/opt/local/libexec/qt6/qml
+--resource
+/Users/maaoki/zalupa/File-sharing/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.qt/rcc/qmake_MyServer.qrc
+--resource
+/Users/maaoki/zalupa/File-sharing/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.qt/rcc/appMyServer_raw_qml_0.qrc
+/Users/maaoki/zalupa/File-sharing/Main.qml
+--json
+/Users/maaoki/zalupa/File-sharing/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/appMyServer_qmllint.json

@@ -1,0 +1,6 @@
+module MyServer
+typeinfo appMyServer.qmltypes
+prefer :/qt/qml/MyServer/
+Main 1.0 Main.qml
+depends QtQuick
+

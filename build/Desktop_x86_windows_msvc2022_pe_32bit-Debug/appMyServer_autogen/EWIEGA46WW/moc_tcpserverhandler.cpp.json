@@ -1,0 +1,135 @@
+{
+    "classes": [
+        {
+            "className": "TcpServerHandler",
+            "methods": [
+                {
+                    "access": "public",
+                    "name": "startServer",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "stopServer",
+                    "returnType": "void"
+                }
+            ],
+            "object": true,
+            "properties": [
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 0,
+                    "name": "serverAddress",
+                    "notify": "serverAddressChanged",
+                    "read": "serverAddress",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "QString",
+                    "user": false
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 1,
+                    "name": "isRunning",
+                    "notify": "isRunningChanged",
+                    "read": "isRunning",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "bool",
+                    "user": false
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 2,
+                    "name": "receivedFileName",
+                    "notify": "receivedFileNameChanged",
+                    "read": "receivedFileName",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "QString",
+                    "user": false
+                }
+            ],
+            "qualifiedClassName": "TcpServerHandler",
+            "signals": [
+                {
+                    "access": "public",
+                    "name": "serverAddressChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "isRunningChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "receivedFileNameChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "fileName",
+                            "type": "QString"
+                        }
+                    ],
+                    "name": "fileReceived",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "errorMessage",
+                            "type": "QString"
+                        }
+                    ],
+                    "name": "errorOccurred",
+                    "returnType": "void"
+                }
+            ],
+            "slots": [
+                {
+                    "access": "private",
+                    "name": "onNewConnection",
+                    "returnType": "void"
+                },
+                {
+                    "access": "private",
+                    "name": "onReadyRead",
+                    "returnType": "void"
+                },
+                {
+                    "access": "private",
+                    "arguments": [
+                        {
+                            "name": "error",
+                            "type": "QAbstractSocket::SocketError"
+                        }
+                    ],
+                    "name": "onSocketError",
+                    "returnType": "void"
+                }
+            ],
+            "superClasses": [
+                {
+                    "access": "public",
+                    "name": "QObject"
+                }
+            ]
+        }
+    ],
+    "inputFile": "tcpserverhandler.h",
+    "outputRevision": 68
+}

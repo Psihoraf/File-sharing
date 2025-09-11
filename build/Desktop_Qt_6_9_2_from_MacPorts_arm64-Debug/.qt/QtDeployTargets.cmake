@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_appMyServer_FILE /Users/maaoki/zalupa/File-sharing/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/appMyServer.app/Contents/MacOS/appMyServer)
+set(__QT_DEPLOY_TARGET_appMyServer_TYPE EXECUTABLE)

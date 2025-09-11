@@ -1,0 +1,7 @@
+module MyServer
+typeinfo appMyServer.qmltypes
+prefer :/qt/qml/MyServer/
+Server 1.0 Server.qml
+Client 1.0 Client.qml
+Main 1.0 Main.qml
+
