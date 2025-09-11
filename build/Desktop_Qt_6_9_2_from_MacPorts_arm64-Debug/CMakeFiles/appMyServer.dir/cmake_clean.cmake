@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  ".qt/rcc/qrc_appMyServer_raw_qml_0.cpp"
+  ".qt/rcc/qrc_qmake_MyServer.cpp"
+  ".rcc/qmlcache/appMyServer_Main_qml.cpp"
+  ".rcc/qmlcache/appMyServer_Main_qml.cpp.aotstats"
+  ".rcc/qmlcache/appMyServer_qmlcache_loader.cpp"
+  "CMakeFiles/appMyServer_autogen.dir/AutogenUsed.txt"
+  "CMakeFiles/appMyServer_autogen.dir/ParseCache.txt"
+  "appMyServer_autogen"
+  "CMakeFiles/appMyServer.dir/appMyServer_autogen/mocs_compilation.cpp.o"
+  "CMakeFiles/appMyServer.dir/appMyServer_autogen/mocs_compilation.cpp.o.d"
+  "CMakeFiles/appMyServer.dir/appmyserver_qmltyperegistrations.cpp.o"
+  "CMakeFiles/appMyServer.dir/appmyserver_qmltyperegistrations.cpp.o.d"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.qt/rcc/qrc_appMyServer_raw_qml_0.cpp.o"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.qt/rcc/qrc_appMyServer_raw_qml_0.cpp.o.d"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.qt/rcc/qrc_qmake_MyServer.cpp.o"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.qt/rcc/qrc_qmake_MyServer.cpp.o.d"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.rcc/qmlcache/appMyServer_Main_qml.cpp.o"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.rcc/qmlcache/appMyServer_Main_qml.cpp.o.d"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.rcc/qmlcache/appMyServer_qmlcache_loader.cpp.o"
+  "CMakeFiles/appMyServer.dir/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/.rcc/qmlcache/appMyServer_qmlcache_loader.cpp.o.d"
+  "CMakeFiles/appMyServer.dir/main.cpp.o"
+  "CMakeFiles/appMyServer.dir/main.cpp.o.d"
+  "CMakeFiles/appMyServer.dir/tcpserverhandler.cpp.o"
+  "CMakeFiles/appMyServer.dir/tcpserverhandler.cpp.o.d"
+  "MyServer/appMyServer.qmltypes"
+  "appMyServer.app/Contents/MacOS/appMyServer"
+  "appMyServer.pdb"
+  "appMyServer_autogen/mocs_compilation.cpp"
+  "appMyServer_autogen/timestamp"
+  "appmyserver_qmltyperegistrations.cpp"
+  "meta_types/appMyServer_json_file_list.txt"
+  "meta_types/appMyServer_json_file_list.txt.timestamp"
+  "meta_types/qt6appmyserver_debug_metatypes.json"
+  "meta_types/qt6appmyserver_debug_metatypes.json.gen"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/appMyServer.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

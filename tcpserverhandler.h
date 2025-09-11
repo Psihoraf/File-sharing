@@ -5,10 +5,12 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QString>
+#include <qqml.h>
 
 class TcpServerHandler : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
 
     Q_PROPERTY(QString serverAddress READ serverAddress NOTIFY serverAddressChanged)
     Q_PROPERTY(bool isRunning READ isRunning NOTIFY isRunningChanged)

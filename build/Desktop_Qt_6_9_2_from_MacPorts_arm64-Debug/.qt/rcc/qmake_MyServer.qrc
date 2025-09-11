@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/MyServer">
+    <file alias="qmldir">/Users/maaoki/zalupa/File-sharing/build/Desktop_Qt_6_9_2_from_MacPorts_arm64-Debug/MyServer/qmldir</file>
+  </qresource>
+</RCC>
+
