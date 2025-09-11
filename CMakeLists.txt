@@ -15,9 +15,14 @@ qt_add_executable(appMyServer
 qt_add_qml_module(appMyServer
     URI MyServer
     VERSION 1.0
-    QML_FILES
-        Main.qml
-        SOURCES tcpserverhandler.h tcpserverhandler.cpp
+    QML_FILES Main.qml
+    QML_FILES Client.qml
+    QML_FILES Server.qml
+    SOURCES tcpserverhandler.h tcpserverhandler.cpp
+    SOURCES tcpclienthandler.h tcpclienthandler.cpp
+
+
+
 
 )
 
