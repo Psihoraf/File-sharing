@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/qt/qml/MyServer">
-    <file alias="qmldir">C:/Users/HONOR/Documents/File-sharing/build/Desktop_x86_windows_msvc2022_pe_32bit-Debug/MyServer/qmldir</file>
-  </qresource>
-</RCC>
-
