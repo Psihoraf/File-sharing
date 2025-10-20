@@ -20,6 +20,7 @@ qt_add_qml_module(appMyServer
     QML_FILES Server.qml
     SOURCES tcpserverhandler.h tcpserverhandler.cpp
     SOURCES tcpclienthandler.h tcpclienthandler.cpp
+    SOURCES filepathmanager.h filepathmanager.cpp
 
 
 

@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import FileServer 1.0
+import QtQuick.Dialogs
 
 
 Page {
@@ -57,10 +58,17 @@ Page {
             anchors.margins: 20
             spacing: 15
 
+            Button {
+                Layout.fillWidth: true
+                text: "📁 Выбрать путь сохранения"
+                onClicked: folderDialog.open()
+            }
             // Кнопки управления сервером
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 10
+
+
 
                 Button {
                     Layout.fillWidth: true
@@ -72,6 +80,8 @@ Page {
                             statusLabel.color = "gray";
                         } else {
                             serverHandler.startServer();
+                            statusLabel.text = "Сервер запущен";
+                            statusLabel.color = "green";
                         }
                     }
                 }
@@ -190,6 +200,19 @@ Page {
             }
         }
 
+        // Диалог выбора папки
+        FolderDialog {
+            id: folderDialog
+            title: "Выберите папку для сохранения файлов"
+
+            onAccepted: {
+                var folderPath = selectedFolder.toString();
+                if (folderPath.startsWith("file:///")) {
+                    folderPath = folderPath.substring(8);
+                }
+                serverHandler.pathManager.setSavePath(folderPath);
+            }
+        }
         Timer {
             id: resetStatusTimer
             interval: 3000
