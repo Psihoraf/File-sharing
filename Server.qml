@@ -58,11 +58,24 @@ Page {
             anchors.margins: 20
             spacing: 15
 
-            Button {
-                Layout.fillWidth: true
-                text: "📁 Выбрать путь сохранения"
-                onClicked: folderDialog.open()
+            RowLayout{
+                Button {
+                    Layout.fillWidth: true
+                    text: "📁 Выбрать путь сохранения"
+                    onClicked: folderDialog.open()
+                }
+
+                Label {
+                        Layout.fillWidth: true
+                        text: "Путь: " + serverHandler.pathManager.savePath
+                        elide: Text.ElideLeft
+                        wrapMode: Text.Wrap
+                        color: "blue"
+                    }
+
             }
+
+
             // Кнопки управления сервером
             RowLayout {
                 Layout.fillWidth: true
@@ -92,11 +105,14 @@ Page {
                     enabled: serverHandler.isRunning && serverHandler.serverAddress
                     onClicked: {
                         if (serverHandler.serverAddress) {
-                            // Копирование в буфер обмена
-                            ipText.text = serverHandler.serverAddress;
-                            ipText.selectAll();
-                            ipText.copy();
-                            ipText.deselect();
+                            // Создаем временный TextField для копирования
+                            var tempText = Qt.createQmlObject('import QtQuick 2.15; import QtQuick.Controls 2.15; TextField { visible: false }',
+                                                             parent, "tempCopyField");
+                            tempText.text = serverHandler.serverAddress;
+                            tempText.selectAll();
+                            tempText.copy();
+                            tempText.destroy();
+
                             statusLabel.text = "Адрес скопирован!";
                             statusLabel.color = "blue";
                             resetStatusTimer.start();
