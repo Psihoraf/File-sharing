@@ -4,41 +4,38 @@ import QtQuick.Layouts 1.15
 import FileServer 1.0
 import QtQuick.Dialogs
 
-
 Page {
     header: ToolBar {
         RowLayout {
             anchors.fill: parent
-
             ToolButton {
                 text: "← Назад"
-                onClicked: {
-                    // Закрываем это окно и возвращаемся к главному меню
-                    stackView.pop();
-                }
+                onClicked: stackView.pop()
             }
-
             Label {
                 Layout.fillWidth: true
-                text: "📤 Режим отправки"
+                text: "📥 Режим приема"
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
             }
         }
     }
 
-
     Rectangle {
-
         width: parent.width
         height: parent.height
         color: "transparent"
 
         TcpServerHandler {
             id: serverHandler
-            onFileReceived: function(fileName) {
-                receivedFilesModel.append({"fileName": fileName, "status": "✓ Получен", "time": new Date().toLocaleTimeString()});
-                statusLabel.text = "Файл получен: " + fileName;
+            onFileReceived: function(fileName, clientAddress) {
+                receivedFilesModel.append({
+                    "fileName": fileName,
+                    "status": "✓ Получен",
+                    "time": new Date().toLocaleTimeString(),
+                    "client": clientAddress
+                });
+                statusLabel.text = "Файл получен от " + clientAddress + ": " + fileName;
                 statusLabel.color = "green";
                 resetStatusTimer.start();
             }
@@ -47,10 +44,29 @@ Page {
                 statusLabel.color = "red";
                 resetStatusTimer.start();
             }
+            onClientConnected: function(clientAddress) {
+                statusLabel.text = "Подключился клиент: " + clientAddress;
+                statusLabel.color = "blue";
+                resetStatusTimer.start();
+                connectionsModel.append({"address": clientAddress, "status": "✅ Подключен"});
+            }
+            onClientDisconnected: function(clientAddress) {
+                // Удаляем клиента из списка подключений
+                for (var i = 0; i < connectionsModel.count; i++) {
+                    if (connectionsModel.get(i).address === clientAddress) {
+                        connectionsModel.remove(i);
+                        break;
+                    }
+                }
+            }
         }
 
         ListModel {
             id: receivedFilesModel
+        }
+
+        ListModel {
+            id: connectionsModel
         }
 
         ColumnLayout {
@@ -58,7 +74,61 @@ Page {
             anchors.margins: 20
             spacing: 15
 
-            RowLayout{
+            // Информация о сервере
+            GroupBox {
+                Layout.fillWidth: true
+                title: "📊 Статус сервера"
+
+                GridLayout {
+                    columns: 2
+                    width: parent.width
+
+                    Label { text: "Адрес:"; font.bold: true }
+                    Label { text: serverHandler.serverAddress || "недоступен"; color: "blue" }
+
+                    Label { text: "Активных подключений:"; font.bold: true }
+                    Label {
+                        text: serverHandler.activeConnections + " из 10"
+                        color: serverHandler.activeConnections > 5 ? "orange" : "green"
+                    }
+                }
+            }
+
+            // Список активных подключений
+            GroupBox {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 80
+                title: "🔗 Активные подключения (" + connectionsModel.count + ")"
+
+                ListView {
+                    anchors.fill: parent
+                    model: connectionsModel
+                    spacing: 2
+                    clip: true
+
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 25
+                        color: "transparent"
+
+                        RowLayout {
+                            anchors.fill: parent
+                            Label {
+                                text: "🖥️ " + address
+                                font.pixelSize: 12
+                                elide: Text.ElideMiddle
+                            }
+                            Label {
+                                text: status
+                                color: "green"
+                                font.pixelSize: 10
+                            }
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
                 Button {
                     Layout.fillWidth: true
                     text: "📁 Выбрать путь сохранения"
@@ -66,22 +136,19 @@ Page {
                 }
 
                 Label {
-                        Layout.fillWidth: true
-                        text: "Путь: " + serverHandler.pathManager.savePath
-                        elide: Text.ElideLeft
-                        wrapMode: Text.Wrap
-                        color: "blue"
-                    }
-
+                    Layout.fillWidth: true
+                    text: "Путь: " + serverHandler.pathManager.savePath
+                    elide: Text.ElideLeft
+                    wrapMode: Text.Wrap
+                    color: "blue"
+                    font.pixelSize: 12
+                }
             }
-
 
             // Кнопки управления сервером
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 10
-
-
 
                 Button {
                     Layout.fillWidth: true
@@ -91,10 +158,9 @@ Page {
                             serverHandler.stopServer();
                             statusLabel.text = "Сервер остановлен";
                             statusLabel.color = "gray";
+                            connectionsModel.clear();
                         } else {
                             serverHandler.startServer();
-                            statusLabel.text = "Сервер запущен";
-                            statusLabel.color = "green";
                         }
                     }
                 }
@@ -105,9 +171,9 @@ Page {
                     enabled: serverHandler.isRunning && serverHandler.serverAddress
                     onClicked: {
                         if (serverHandler.serverAddress) {
-                            // Создаем временный TextField для копирования
-                            var tempText = Qt.createQmlObject('import QtQuick 2.15; import QtQuick.Controls 2.15; TextField { visible: false }',
-                                                             parent, "tempCopyField");
+                            var tempText = Qt.createQmlObject(
+                                'import QtQuick 2.15; import QtQuick.Controls 2.15; TextField { visible: false }',
+                                parent, "tempCopyField");
                             tempText.text = serverHandler.serverAddress;
                             tempText.selectAll();
                             tempText.copy();
@@ -121,12 +187,6 @@ Page {
                 }
             }
 
-            // Скрытый Text для копирования
-            Text {
-                id: ipText
-                visible: false
-            }
-
             // Статус сервера
             Label {
                 id: statusLabel
@@ -135,15 +195,6 @@ Page {
                 color: "gray"
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
-            }
-
-            // Информация о сервере
-            Label {
-                Layout.fillWidth: true
-                text: "Адрес: " + (serverHandler.serverAddress || "недоступен")
-                wrapMode: Text.Wrap
-                color: "blue"
-                horizontalAlignment: Text.AlignHCenter
             }
 
             // Разделитель
@@ -170,36 +221,41 @@ Page {
 
                         delegate: Rectangle {
                             width: ListView.view.width
-                            height: 50
+                            height: 60
                             radius: 5
                             color: index % 2 === 0 ? "#f8f9fa" : "#ffffff"
 
-                            RowLayout {
+                            ColumnLayout {
                                 anchors.fill: parent
                                 anchors.margins: 5
-                                spacing: 10
+                                spacing: 2
 
-                                Label { text: "📄"; font.pixelSize: 16 }
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 2
+                                RowLayout {
                                     Label {
-                                        text: fileName
+                                        text: "📄 " + fileName
                                         elide: Text.ElideMiddle
                                         font.bold: true
+                                        Layout.fillWidth: true
+                                    }
+                                    Label {
+                                        text: status
+                                        color: "green"
+                                        font.bold: true
+                                    }
+                                }
+
+                                RowLayout {
+                                    Label {
+                                        text: "От: " + client
+                                        font.pixelSize: 10
+                                        color: "gray"
+                                        Layout.fillWidth: true
                                     }
                                     Label {
                                         text: "Время: " + time
                                         font.pixelSize: 10
                                         color: "gray"
                                     }
-                                }
-
-                                Label {
-                                    text: status
-                                    color: "green"
-                                    font.bold: true
                                 }
                             }
                         }
@@ -229,12 +285,14 @@ Page {
                 serverHandler.pathManager.setSavePath(folderPath);
             }
         }
+
         Timer {
             id: resetStatusTimer
             interval: 3000
             onTriggered: {
                 if (serverHandler.isRunning) {
-                    statusLabel.text = "Сервер запущен: " + serverHandler.serverAddress;
+                    statusLabel.text = "Сервер запущен: " + serverHandler.serverAddress +
+                                      " | Подключений: " + serverHandler.activeConnections;
                     statusLabel.color = "green";
                 } else {
                     statusLabel.text = "Сервер остановлен";

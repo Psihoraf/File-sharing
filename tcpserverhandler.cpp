@@ -7,16 +7,20 @@
 TcpServerHandler::TcpServerHandler(QObject *parent)
     : QObject(parent)
     , m_tcpServer(new QTcpServer(this))
-    , m_clientSocket(nullptr)
     , m_isRunning(false)
     , m_pathManager(new FilePathManager(this))
 {
     connect(m_tcpServer, &QTcpServer::newConnection, this, &TcpServerHandler::onNewConnection);
 }
 
+TcpServerHandler::~TcpServerHandler()
+{
+    stopServer();
+}
+
 QString TcpServerHandler::serverAddress() const { return m_serverAddress; }
 bool TcpServerHandler::isRunning() const { return m_isRunning; }
-QString TcpServerHandler::receivedFileName() const { return m_receivedFileName; }
+int TcpServerHandler::activeConnections() const { return m_clients.size(); }
 FilePathManager* TcpServerHandler::pathManager() const { return m_pathManager; }
 
 void TcpServerHandler::startServer()
@@ -51,6 +55,7 @@ void TcpServerHandler::startServer()
     m_serverAddress = ipAddress + ":" + QString::number(m_tcpServer->serverPort());
 
     qDebug() << "Сервер запущен на" << m_serverAddress;
+    qDebug() << "Максимум подключений:" << MAX_CONNECTIONS;
     qDebug() << "Файлы сохраняются в:" << m_pathManager->savePath();
     emit isRunningChanged();
     emit serverAddressChanged();
@@ -59,91 +64,202 @@ void TcpServerHandler::startServer()
 void TcpServerHandler::stopServer()
 {
     if (m_isRunning) {
-        m_tcpServer->close();
-        if (m_clientSocket) {
-            m_clientSocket->close();
-            m_clientSocket->deleteLater();
-            m_clientSocket = nullptr;
+        // Закрываем все клиентские подключения
+        for (auto it = m_clients.begin(); it != m_clients.end(); ++it) {
+            cleanupClient(it.key());
         }
+        m_clients.clear();
 
+        m_tcpServer->close();
         m_isRunning = false;
         m_serverAddress.clear();
 
         qDebug() << "Сервер остановлен";
         emit isRunningChanged();
         emit serverAddressChanged();
+        emit activeConnectionsChanged();
+    }
+}
+
+void TcpServerHandler::disconnectAllClients()
+{
+    for (auto it = m_clients.begin(); it != m_clients.end(); ++it) {
+        it.key()->close();
     }
 }
 
 void TcpServerHandler::onNewConnection()
 {
-    m_clientSocket = m_tcpServer->nextPendingConnection();
-    if (m_clientSocket) {
-        connect(m_clientSocket, &QTcpSocket::readyRead, this, &TcpServerHandler::onReadyRead);
-        connect(m_clientSocket, &QTcpSocket::disconnected, this, [this]() {
-            m_clientSocket->deleteLater();
-            m_clientSocket = nullptr;
-        });
-
-        qDebug() << "Новое подключение от" << m_clientSocket->peerAddress().toString();
-    }
-}
-
-void TcpServerHandler::onReadyRead()
-{
-    if (!m_clientSocket) {
+    if (m_clients.size() >= MAX_CONNECTIONS) {
+        QTcpSocket *pendingSocket = m_tcpServer->nextPendingConnection();
+        qDebug() << "Отклонено новое подключение - достигнут лимит" << MAX_CONNECTIONS;
+        pendingSocket->close();
+        pendingSocket->deleteLater();
         return;
     }
 
-    static qint64 expectedFileSize = 0;
-    static QString expectedFileName;
-    static QFile *outputFile = nullptr;
-    static qint64 bytesReceived = 0;
+    QTcpSocket *clientSocket = m_tcpServer->nextPendingConnection();
+    if (!clientSocket) {
+        return;
+    }
 
-    QDataStream in(m_clientSocket);
+    // Инициализируем структуру для нового клиента
+    ClientConnection connection;
+    connection.socket = clientSocket;
+    connection.expectedFileSize = 0;
+    connection.bytesReceived = 0;
+    connection.outputFile = nullptr;
+
+    m_clients[clientSocket] = connection;
+
+    // Подключаем сигналы для этого клиента
+    connect(clientSocket, &QTcpSocket::readyRead, this, &TcpServerHandler::onClientReadyRead);
+    connect(clientSocket, &QTcpSocket::disconnected, this, &TcpServerHandler::onClientDisconnected);
+
+    QString clientInfo = getClientIdentifier(clientSocket);
+    qDebug() << "Новое подключение от:" << clientInfo;
+    qDebug() << "Активных подключений:" << m_clients.size();
+
+    emit clientConnected(clientInfo);
+    emit activeConnectionsChanged();
+}
+
+void TcpServerHandler::onClientReadyRead()
+{
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
+    if (!clientSocket || !m_clients.contains(clientSocket)) {
+        return;
+    }
+
+    processClientData(clientSocket);
+}
+
+void TcpServerHandler::onClientDisconnected()
+{
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
+    if (!clientSocket) {
+        return;
+    }
+
+    QString clientInfo = getClientIdentifier(clientSocket);
+    qDebug() << "Клиент отключился:" << clientInfo;
+
+    cleanupClient(clientSocket);
+    m_clients.remove(clientSocket);
+
+    qDebug() << "Активных подключений:" << m_clients.size();
+    emit clientDisconnected(clientInfo);
+    emit activeConnectionsChanged();
+}
+
+void TcpServerHandler::processClientData(QTcpSocket* clientSocket)
+{
+    if (!m_clients.contains(clientSocket)) {
+        return;
+    }
+
+    ClientConnection &connection = m_clients[clientSocket];
+    QDataStream in(clientSocket);
     in.setVersion(QDataStream::Qt_6_0);
 
-    if (expectedFileSize == 0) {
-        if (m_clientSocket->bytesAvailable() < sizeof(qint64) * 2) {
-            return;
+    // Если это начало нового файла
+    if (connection.expectedFileSize == 0) {
+        if (clientSocket->bytesAvailable() < sizeof(qint64) * 2) {
+            return; // Ждем больше данных
         }
 
-        in >> expectedFileSize >> expectedFileName;
+        in >> connection.expectedFileSize >> connection.expectedFileName;
 
         // Используем FilePathManager для получения пути файла
-        QString filePath = m_pathManager->getFilePath(expectedFileName);
+        QString filePath = m_pathManager->getFilePath(connection.expectedFileName);
 
-        outputFile = new QFile(filePath);
-        if (!outputFile->open(QIODevice::WriteOnly)) {
+        connection.outputFile = new QFile(filePath);
+        if (!connection.outputFile->open(QIODevice::WriteOnly)) {
             emit errorOccurred("Не удалось создать файл: " + filePath);
-            delete outputFile;
-            outputFile = nullptr;
-            expectedFileSize = 0;
+            delete connection.outputFile;
+            connection.outputFile = nullptr;
+            connection.expectedFileSize = 0;
             return;
         }
 
-        m_receivedFileName = QFileInfo(filePath).fileName();
-        emit receivedFileNameChanged();
+        connection.receivedFileName = QFileInfo(filePath).fileName();
+        connection.bytesReceived = 0;
 
-        qDebug() << "Прием файла:" << m_receivedFileName;
-        qDebug() << "Сохраняется в:" << filePath;
+        QString clientInfo = getClientIdentifier(clientSocket);
+        qDebug() << "Начинаем прием файла от" << clientInfo;
+        qDebug() << "Файл:" << connection.receivedFileName;
+        qDebug() << "Размер:" << connection.expectedFileSize << "байт";
     }
 
-    if (outputFile && outputFile->isOpen()) {
-        QByteArray data = m_clientSocket->readAll();
-        qint64 bytesWritten = outputFile->write(data);
-        bytesReceived += bytesWritten;
+    // Принимаем данные файла
+    if (connection.outputFile && connection.outputFile->isOpen()) {
+        QByteArray data = clientSocket->readAll();
+        qint64 bytesWritten = connection.outputFile->write(data);
+        connection.bytesReceived += bytesWritten;
 
-        if (bytesReceived >= expectedFileSize) {
-            outputFile->close();
-            delete outputFile;
-            outputFile = nullptr;
+        // Выводим прогресс для отладки
+        if (connection.expectedFileSize > 0) {
+            int progress = (connection.bytesReceived * 100) / connection.expectedFileSize;
+            if (progress % 10 == 0) { // Логируем каждые 10%
+                qDebug() << "Прогресс приема от" << getClientIdentifier(clientSocket)
+                         << ":" << progress << "%";
+            }
+        }
 
-            qDebug() << "Файл успешно принят:" << m_receivedFileName;
-            emit fileReceived(m_receivedFileName);
+        // Если файл полностью принят
+        if (connection.bytesReceived >= connection.expectedFileSize) {
+            connection.outputFile->close();
+            delete connection.outputFile;
+            connection.outputFile = nullptr;
 
-            expectedFileSize = 0;
-            bytesReceived = 0;
+            QString clientInfo = getClientIdentifier(clientSocket);
+            qDebug() << "Файл успешно принят от" << clientInfo << ":" << connection.receivedFileName;
+
+            emit fileReceived(connection.receivedFileName, clientInfo);
+
+            // Сбрасываем состояние для следующего файла от этого клиента
+            connection.expectedFileSize = 0;
+            connection.bytesReceived = 0;
+            QString finishedFileName = connection.receivedFileName;
+            connection.receivedFileName.clear();
+
+            // Клиент может сразу отправить следующий файл
+            if (clientSocket->bytesAvailable() > 0) {
+                qDebug() << "Обрабатываем следующий файл от" << clientInfo;
+                processClientData(clientSocket);
+            }
         }
     }
+}
+
+void TcpServerHandler::cleanupClient(QTcpSocket* clientSocket)
+{
+    if (!clientSocket) {
+        return;
+    }
+
+    // Отключаем все сигналы
+    clientSocket->disconnect();
+
+    // Очищаем ресурсы
+    if (m_clients.contains(clientSocket)) {
+        ClientConnection &connection = m_clients[clientSocket];
+        if (connection.outputFile && connection.outputFile->isOpen()) {
+            connection.outputFile->close();
+            delete connection.outputFile;
+            connection.outputFile = nullptr;
+        }
+    }
+
+    if (clientSocket->state() == QAbstractSocket::ConnectedState) {
+        clientSocket->close();
+    }
+}
+
+QString TcpServerHandler::getClientIdentifier(QTcpSocket* clientSocket) const
+{
+    if (!clientSocket) {
+        return "Unknown";
+    }
+    return clientSocket->peerAddress().toString() + ":" + QString::number(clientSocket->peerPort());
 }

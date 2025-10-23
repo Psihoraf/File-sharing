@@ -162,6 +162,7 @@ void TcpClientHandler::onConnected()
 {
     m_connected = true;
     m_status = "Подключено к серверу";
+    qDebug() << "Успешно подключились к серверу";
     emit isConnectedChanged();
     emit statusChanged();
 }
@@ -170,6 +171,7 @@ void TcpClientHandler::onDisconnected()
 {
     m_connected = false;
     m_status = "Отключено от сервера";
+    qDebug() << "Отключились от сервера";
     if (m_currentFile && m_currentFile->isOpen()) {
         m_currentFile->close();
         delete m_currentFile;
