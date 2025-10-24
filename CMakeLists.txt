@@ -21,6 +21,9 @@ qt_add_qml_module(appMyServer
     SOURCES tcpserverhandler.h tcpserverhandler.cpp
     SOURCES tcpclienthandler.h tcpclienthandler.cpp
     SOURCES filepathmanager.h filepathmanager.cpp
+    SOURCES hotspotchat.h hotspotchat.cpp
+    QML_FILES HotspotClient.qml
+    SOURCES hproto.h
 
 
 

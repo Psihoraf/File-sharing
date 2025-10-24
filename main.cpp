@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "tcpclienthandler.h"
 #include "tcpserverhandler.h"
+#include "hotspotchat.h"
 
 
 int main(int argc, char *argv[])
@@ -13,6 +14,8 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<TcpServerHandler>("FileServer", 1, 0, "TcpServerHandler");
     qmlRegisterType<TcpClientHandler>("FileClient", 1, 0, "TcpClientHandler");
+    qmlRegisterType<HotspotChat>("HotspotFileTransfer", 1, 0, "HotspotFileTransfer");  // Добавляем
+    qmlRegisterType<HotspotChat>("MyServer", 1, 0, "HotspotChat");
 
     QQmlApplicationEngine engine;
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
