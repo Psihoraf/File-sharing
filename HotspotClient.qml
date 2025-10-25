@@ -15,7 +15,7 @@ Page {
             }
             Label {
                 Layout.fillWidth: true
-                text: "🌐 Обмен через интернет"
+                text: "🌐 Обмен через удаленный сервер"
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -28,7 +28,7 @@ Page {
         onRedirected: (url) => {
             console.log("Redirected to:", url)
             addressField.text = url
-            statusLabel.text = "✅ Подключено к пиру: " + url
+            statusLabel.text = "✅ Подключено к серверу: " + url
             statusLabel.color = "green"
             greetAddress(url)
             addressField.focus = false
@@ -76,13 +76,13 @@ Page {
                 connectionIndicator.color = "red"
                 break
             case HotspotChat.ConnectedToRouter:
-                statusLabel.text = "🔄 Подключено к серверу, ожидание пира..."
+                statusLabel.text = "🔄 Подключение, ожидание... "
                 statusLabel.color = "orange"
-                connectionStatus.text = "Ожидание пира"
+                connectionStatus.text = "Ожидание подключения"
                 connectionIndicator.color = "orange"
                 break
             case HotspotChat.ConnectedToPeer:
-                statusLabel.text = "✅ Подключено к пиру"
+                statusLabel.text = "✅ Подключено "
                 statusLabel.color = "green"
                 connectionStatus.text = "Подключено"
                 connectionIndicator.color = "green"
@@ -163,7 +163,7 @@ Page {
         // Поле для ручного ввода адреса
                 GroupBox {
                     Layout.fillWidth: true
-                    title: "🎯 Подключение к пиру"
+                    title: "🎯 Подключение к серверу"
 
                     ColumnLayout {
                         width: parent.width
@@ -178,11 +178,11 @@ Page {
 
                         RowLayout {
                             Button {
-                                text: "Приветствовать"
+                                text: "Подключиться"
                                 onClicked: {
                                     if (addressField.text) {
                                         hotspotChat.greetAddress(addressField.text)
-                                        statusLabel.text = "Отправляю приветствие..."
+                                        statusLabel.text = "Подключаемся..."
                                         statusLabel.color = "blue"
                                     }
                                 }
