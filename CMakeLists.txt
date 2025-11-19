@@ -4,7 +4,7 @@ project(MyServer VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Quick Network)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Quick Network Test)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -24,11 +24,10 @@ qt_add_qml_module(appMyServer
     SOURCES hotspotchat.h hotspotchat.cpp
     QML_FILES HotspotClient.qml
     SOURCES hproto.h
-
-
-
-
 )
+
+enable_testing()
+add_subdirectory(tests)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
