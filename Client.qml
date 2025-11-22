@@ -43,8 +43,8 @@ Page {
                 TextField {
                     id: ipField
                     Layout.fillWidth: true
-                    placeholderText: "192.168.1.5"
-                    text: "192.168.1.5"
+                    placeholderText: "127.0.0.1"
+                    text: "127.0.0.1"
                 }
 
                 Label { text: "Порт:" }
@@ -193,12 +193,10 @@ Page {
         nameFilters: ["Все файлы (*)"]
 
         onAccepted: {
-            let filePath = selectedFile.toString();
-            if (filePath.startsWith("file:///")) {
-                filePath = filePath.substring(8);
+            for (const filePath of selectedFiles) {
+                console.log("Выбран файл:", filePath);
+                clientHandler.sendFile(filePath);
             }
-            console.log("Выбран файл:", filePath);
-            clientHandler.sendFile(filePath);
         }
     }
 

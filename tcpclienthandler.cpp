@@ -3,6 +3,7 @@
 #include <QHostAddress>
 #include <QDataStream>
 #include <QFileInfo>
+#include <QUrl>
 
 TcpClientHandler::TcpClientHandler(QObject *parent)
     : QObject(parent)
@@ -47,12 +48,18 @@ void TcpClientHandler::disconnectFromServer()
     }
 }
 
-void TcpClientHandler::sendFile(const QString &filePath)
+void TcpClientHandler::sendFile(const QUrl &fileUrl)
 {
     if (!m_connected) {
         emit errorOccurred("Нет подключения к серверу");
         return;
     }
+
+    if (!fileUrl.isLocalFile()) {
+        emit errorOccurred("Удаленные файлы не поддерживаются: " + fileUrl.toString());
+        return;
+    }
+    QString filePath = fileUrl.toLocalFile();
 
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists() || !fileInfo.isFile()) {

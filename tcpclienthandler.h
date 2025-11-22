@@ -25,7 +25,7 @@ public:
 
     Q_INVOKABLE void connectToServer(const QString &address, quint16 port);
     Q_INVOKABLE void disconnectFromServer();
-    Q_INVOKABLE void sendFile(const QString &filePath);
+    Q_INVOKABLE void sendFile(const QUrl &fileUrl);
 
 signals:
     void isConnectedChanged();
