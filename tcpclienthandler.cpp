@@ -12,6 +12,7 @@ TcpClientHandler::TcpClientHandler(QObject *parent)
     , m_progress(0)
     , m_fileSize(0)
     , m_bytesWritten(0)
+    , m_status("Не подключено")
 {
     connect(m_socket, &QTcpSocket::connected, this, &TcpClientHandler::onConnected);
     connect(m_socket, &QTcpSocket::disconnected, this, &TcpClientHandler::onDisconnected);

@@ -7,11 +7,10 @@ ApplicationWindow {
     id: mainWindow
 
     title: "File Transfer App"
-    width: 400
-    height: 400
-    minimumWidth: 350
-    minimumHeight: 350
     visible: true
+
+    minimumWidth: stackView.currentItem.implicitWidth
+    minimumHeight: stackView.currentItem.implicitHeight
 
     StackView {
         id: stackView
@@ -23,6 +22,9 @@ ApplicationWindow {
         id: mainMenuPage
 
         Page {
+            padding: 20
+            bottomPadding: 4
+
             background: Rectangle {
                 color: "#f5f5f5"
             }
